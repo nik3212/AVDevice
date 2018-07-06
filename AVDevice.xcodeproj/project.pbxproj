@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		D0BC9EDB20ED7B9700D73159 /* AVDevice.hpp in Headers */ = {isa = PBXBuildFile; fileRef = D0BC9EDA20ED7B9700D73159 /* AVDevice.hpp */; };
 		D0BC9EDD20ED7B9700D73159 /* AVDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D0BC9EDC20ED7B9700D73159 /* AVDevice.cpp */; };
+		D0BD493020F01007004A5834 /* AVAudioEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D0BD492E20F01007004A5834 /* AVAudioEngine.cpp */; };
+		D0BD493120F01007004A5834 /* AVAudioEngine.hpp in Headers */ = {isa = PBXBuildFile; fileRef = D0BD492F20F01007004A5834 /* AVAudioEngine.hpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -16,6 +18,8 @@
 		D0BC9EDA20ED7B9700D73159 /* AVDevice.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = AVDevice.hpp; sourceTree = "<group>"; };
 		D0BC9EDC20ED7B9700D73159 /* AVDevice.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = AVDevice.cpp; sourceTree = "<group>"; };
 		D0BC9EDE20ED7B9700D73159 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D0BD492E20F01007004A5834 /* AVAudioEngine.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = AVAudioEngine.cpp; sourceTree = "<group>"; };
+		D0BD492F20F01007004A5834 /* AVAudioEngine.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = AVAudioEngine.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -50,6 +54,8 @@
 			children = (
 				D0BC9EDA20ED7B9700D73159 /* AVDevice.hpp */,
 				D0BC9EDC20ED7B9700D73159 /* AVDevice.cpp */,
+				D0BD492F20F01007004A5834 /* AVAudioEngine.hpp */,
+				D0BD492E20F01007004A5834 /* AVAudioEngine.cpp */,
 				D0BC9EDE20ED7B9700D73159 /* Info.plist */,
 			);
 			path = AVDevice;
@@ -62,6 +68,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D0BD493120F01007004A5834 /* AVAudioEngine.hpp in Headers */,
 				D0BC9EDB20ED7B9700D73159 /* AVDevice.hpp in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -134,6 +141,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D0BC9EDD20ED7B9700D73159 /* AVDevice.cpp in Sources */,
+				D0BD493020F01007004A5834 /* AVAudioEngine.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

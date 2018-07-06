@@ -18,7 +18,7 @@
 
 #include "AVDevice.hpp"
 
-#include <IOKit/IOLib.h>
+#include <IOKit/IOLib.h> // IOLog
 
 /// This function is called by start() to provide a convenient place
 /// for the subclass to perform its hardware initialization.
@@ -28,6 +28,10 @@ bool AVDevice::initHardware(IOService* provider) {
     if (!IOAudioDevice::initHardware(provider)) {
         return false;
     }
+    
+    setDeviceName("AVAudioDevice");
+    setDeviceShortName("AVDevice");
+    setManufacturerName("osxkernel.com");
     
     if (!createAudioEngine()) {
         return false;
