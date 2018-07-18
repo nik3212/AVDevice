@@ -36,7 +36,7 @@ public:
     virtual IOAudioStream* createNewAudioStream(IOAudioStreamDirection direction,
                                                 void* sampleBuffer, UInt32 sampleBufferSize);
     
-    virtual void stop();
+    virtual void stop(IOService* provider);
     
     virtual IOReturn performAudioEngineStart();
     virtual IOReturn performAudioEngineStop();

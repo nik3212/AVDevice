@@ -130,3 +130,96 @@ IOAudioStream* AVAudioEngine::createNewAudioStream(IOAudioStreamDirection direct
     
     return audioStream;
 }
+
+IOReturn AVAudioEngine::performFormatChange(IOAudioStream *audioStream,
+                                            const IOAudioStreamFormat *newFormat,
+                                            const IOAudioSampleRate *newSampleRate) {
+    IOLog("AVAudioEngine[%p]::performFormatChange(%p, %p, %p)\n", this, audioStream, newFormat, newSampleRate);
+    
+    if (newSampleRate) {
+        switch (newSampleRate->whole) {
+            case 44100:
+                IOLog("/t-> 44.1kHz selected\n");
+                break;
+            case 48000:
+                IOLog("/t-> 48kHz selected\n");
+                break;
+            default:
+                IOLog("/t Internal Error - unknown sample rate selected.\n");
+                break;
+        }
+    }
+    
+    return kIOReturnSuccess;
+}
+
+IOReturn AVAudioEngine::clipOutputSamples(const void *mixBuf,
+                                          void *sampleBuf,
+                                          UInt32 firstSampleFrame,
+                                          UInt32 numSamplesFrame,
+                                          const IOAudioStreamFormat *streamFormat,
+                                          IOAudioStream *audioStream) {
+    UInt32 sampleIndex, maxSampleIndex;
+    float* floatMixBuf;
+    SInt16* outputBuf;
+    
+    floatMixBuf = (float*)mixBuf;
+    outputBuf = (SInt16*)sampleBuf;
+    
+    maxSampleIndex = (firstSampleFrame + numSamplesFrame) * streamFormat->fNumChannels;
+    
+    for (sampleIndex = (firstSampleFrame * streamFormat->fNumChannels); sampleIndex < maxSampleIndex; sampleIndex++) {
+        float inSample;
+        
+        inSample = floatMixBuf[sampleIndex];
+        
+        if (inSample > 1.0) {
+            inSample = 1.0;
+        } else if (inSample < -1.0) {
+            inSample = -1.0;
+        }
+        
+        if (inSample >= 0) {
+            outputBuf[sampleIndex] = (SInt16)(inSample * 32767.0);
+        } else {
+            outputBuf[sampleIndex] = (SInt16)(inSample * 32768.0);
+        }
+    }
+    
+    return kIOReturnSuccess;
+}
+
+IOReturn AVAudioEngine::performAudioEngineStart() {
+    UInt64 time, timeNS;
+    
+    IOLog("AVAudioEngine[%p]::performAudioEngineStart()\n", this);
+    
+    fInterruptCount = 0;
+    takeTimeStamp(false);
+    
+    fAudioInterruptSource->setTimeoutUS(kAudioInterruptInterval / 1000);
+    
+    clock_get_uptime(&time);
+    absolutetime_to_nanoseconds(time, &timeNS);
+    
+    fNextTimeout = timeNS + kAudioInterruptInterval;
+    
+    return kIOReturnSuccess;
+}
+
+IOReturn AVAudioEngine::performAudioEngineStop() {
+    IOLog("AVAudioEngine[%p]::performAudioEngineStop()\n", this);
+    fAudioInterruptSource->cancelTimeout();
+    return kIOReturnSuccess;
+}
+
+void AVAudioEngine::stop(IOService* provider) {
+    IOLog("AVAudioEngine[%p]::stop()\n", this);
+    
+    if (fAudioInterruptSource) {
+        fAudioInterruptSource->cancelTimeout();
+        getWorkLoop()->removeEventSource(fAudioInterruptSource);
+    }
+    
+    IOAudioEngine::stop(provider);
+}
