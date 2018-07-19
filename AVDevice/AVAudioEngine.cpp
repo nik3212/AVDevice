@@ -223,3 +223,49 @@ void AVAudioEngine::stop(IOService* provider) {
     
     IOAudioEngine::stop(provider);
 }
+
+void AVAudioEngine::interruptOccured(OSObject *owner, IOTimerEventSource *sender) {
+    UInt64 thisTimeNS;
+    uint64_t time;
+    SInt64 diff;
+    
+    AVAudioEngine* audioEngine = (AVAudioEngine*)owner;
+    
+    if (audioEngine) {
+        audioEngine->handleAudioInterrupt();
+    }
+    
+    if (!sender) {
+        return;
+    }
+    
+    clock_get_uptime(&time);
+    absolutetime_to_nanoseconds(time, &thisTimeNS);
+    diff = ((SInt64)audioEngine->fNextTimeout - (SInt64)thisTimeNS);
+    
+    sender->setTimeoutUS((UInt32)(((SInt64)kAudioInterruptInterval + diff) / 1000));
+    audioEngine->fNextTimeout += kAudioInterruptInterval;
+}
+
+void AVAudioEngine::handleAudioInterrupt() {
+    UInt32 bufferPosition = fInterruptCount % (kAudioInterruptHZ / 2);
+    UInt32 sampleBytesPerInterrupt = (kAudioSampleRate / kAudioInterruptHZ) * (kAudioSampleWidth / 8) * kAudioNumChannels;
+    UInt32 byteOffsetInBuffer = bufferPosition * sampleBytesPerInterrupt;
+    
+    UInt8* inputBuf = (UInt8*)fInputBuffer + byteOffsetInBuffer;
+    UInt8* outputBuf = (UInt8*)fOutputBuffer + byteOffsetInBuffer;
+    
+    bcopy(outputBuf, inputBuf, sampleBytesPerInterrupt);
+    
+    if (bufferPosition == 0) {
+        takeTimeStamp();
+    }
+    
+    fInterruptCount++;
+}
+
+UInt32 AVAudioEngine::getCurrentSampleFrame() {
+    UInt32 periodCount = (UInt32)fInterruptCount % (kAudioInterruptHZ / 2);
+    UInt32 sampleFrame = periodCount * (kAudioSampleRate / kAudioInterruptHZ);
+    return sampleFrame;
+}
