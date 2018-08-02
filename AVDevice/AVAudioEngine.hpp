@@ -51,7 +51,7 @@ public:
                                        IOAudioStream* audioStream);
     
     virtual IOReturn convertInputSamples(const void* sampleBuf, void* destBuf, UInt32 firstSampleFrame,
-                                         UInt32 numSamplesFrame, const IOAudioStreamFormat* streamFormat,
+                                         UInt32 numSampleFrames, const IOAudioStreamFormat* streamFormat,
                                          IOAudioStream* audioStream);
 private:
     IOTimerEventSource* fAudioInterruptSource;

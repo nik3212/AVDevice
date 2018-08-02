@@ -99,6 +99,25 @@ bool AVAudioEngine::initHardware(IOService *provider) {
     return true;
 }
 
+void AVAudioEngine::free() {
+    if (fOutputBuffer) {
+        IOFree(fOutputBuffer, kAudioSampleBufferSize);
+        fOutputBuffer = NULL;
+    }
+    
+    if (fInputBuffer) {
+        IOFree(fInputBuffer, kAudioSampleBufferSize);
+        fInputBuffer = NULL;
+    }
+    
+    if (fAudioInterruptSource) {
+        fAudioInterruptSource->release();
+        fAudioInterruptSource = NULL;
+    }
+    
+    IOAudioEngine::free();
+}
+
 IOAudioStream* AVAudioEngine::createNewAudioStream(IOAudioStreamDirection direction,
                                                    void *sampleBuffer, UInt32 sampleBufferSize) {
     IOAudioStream* audioStream = new IOAudioStream;
@@ -184,6 +203,36 @@ IOReturn AVAudioEngine::clipOutputSamples(const void *mixBuf,
         } else {
             outputBuf[sampleIndex] = (SInt16)(inSample * 32768.0);
         }
+    }
+    
+    return kIOReturnSuccess;
+}
+
+IOReturn AVAudioEngine::convertInputSamples(const void *sampleBuf, void *destBuf, UInt32 firstSampleFrame, UInt32 numSampleFrames, const IOAudioStreamFormat *streamFormat, IOAudioStream *audioStream) {
+    UInt32 numSamplesLeft;
+    float *floatDestBuf;
+    SInt16 *inputBuf;
+
+    floatDestBuf = (float *)destBuf;
+
+    inputBuf = &(((SInt16 *)sampleBuf)[firstSampleFrame * streamFormat->fNumChannels]);
+    
+    numSamplesLeft = numSampleFrames * streamFormat->fNumChannels;
+
+    while (numSamplesLeft > 0) {
+        SInt16 inputSample;
+
+        inputSample = *inputBuf;
+
+        if (inputSample >= 0) {
+            *floatDestBuf = inputSample / 32767.0f;
+        } else {
+            *floatDestBuf = inputSample / 32768.0f;
+        }
+
+        ++inputBuf;
+        ++floatDestBuf;
+        --numSamplesLeft;
     }
     
     return kIOReturnSuccess;
