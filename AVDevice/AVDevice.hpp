@@ -27,7 +27,7 @@ class AVDevice: public IOAudioDevice {
     OSDeclareDefaultStructors(AVDevice)
     
     virtual bool initHardware(IOService* provider);
-    bool createAudioEngine();
+    bool createAudioEngine(const char* name);
 };
 
 #endif

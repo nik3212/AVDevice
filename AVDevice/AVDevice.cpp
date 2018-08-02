@@ -17,8 +17,14 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #include "AVDevice.hpp"
+#include "AVAudioEngine.hpp"
 
 #include <IOKit/IOLib.h> // IOLog
+
+#include <IOKit/audio/IOAudioControl.h>
+#include <IOKit/audio/IOAudioLevelControl.h>
+#include <IOKit/audio/IOAudioToggleControl.h>
+#include <IOKit/audio/IOAudioDefines.h>
 
 /// This function is called by start() to provide a convenient place
 /// for the subclass to perform its hardware initialization.
@@ -33,11 +39,27 @@ bool AVDevice::initHardware(IOService* provider) {
     setDeviceShortName("AVDevice");
     setManufacturerName("osxkernel.com");
     
-    if (!createAudioEngine()) {
+    if (!createAudioEngine("AVAudio")) {
         return false;
     }
     
     return true;
 }
 
+bool AVDevice::createAudioEngine(const char* name) {
+    AVAudioEngine* audioEngine = new AVAudioEngine();
 
+    if (!audioEngine) {
+        return false;
+    }
+    
+    if (!audioEngine->init(NULL)) {
+        return false;
+    }
+    
+    audioEngine->setDescription(name);
+    activateAudioEngine(audioEngine);
+    audioEngine->release();
+    
+    return true;
+}
